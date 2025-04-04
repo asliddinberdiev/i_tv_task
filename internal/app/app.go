@@ -18,12 +18,6 @@ import (
 	logger "github.com/asliddinberdiev/i_tv_task/pkgs/logger/zap"
 )
 
-// @title I_TV_TASK API
-// @version 1.0
-// @description REST API for I_TV_TASK APP
-
-// @host localhost:8000
-// @BasePath /api/v1/
 func Run(configPath string) {
 	cfg, err := config.Init(configPath)
 	if err != nil {

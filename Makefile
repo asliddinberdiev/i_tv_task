@@ -21,7 +21,7 @@ migrate-new: # make migrate-new name=file_name
 	@migrate create -ext sql -dir migrations/postgres -seq $(name)
 
 swag:
-	@swag init -g internal/app/app.go
+	@swag init -g internal/api/http/handler.go
 
 run: 
 	@go run ${APP_CMD_DIR}/main.go

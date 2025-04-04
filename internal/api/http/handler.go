@@ -23,6 +23,12 @@ func NewHandler(log logger.Logger, cfg *config.Config, modules *modules.Modules)
 	return &Handler{log: log, cfg: cfg, modules: modules}
 }
 
+// @title I_TV_TASK API
+// @version v1
+// @description REST API for I_TV_TASK APP
+
+// @host localhost:8000
+// @BasePath /api/v1/
 func (h *Handler) Init() *gin.Engine {
 	if h.cfg.App.Environment != "dev" {
 		gin.SetMode(gin.ReleaseMode)
