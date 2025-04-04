@@ -1,0 +1,9 @@
+app:
+  app_name: i_tv_task
+  log_level: debug
+
+auth:
+  access_ttl: 30m
+  refresh_ttl: 2h
+  otp_ttl: 2m
+  code_length: 6

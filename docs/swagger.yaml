@@ -1,0 +1,9 @@
+basePath: /api/v1/
+host: localhost:8000
+info:
+  contact: {}
+  description: REST API for I_TV_TASK APP
+  title: I_TV_TASK API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

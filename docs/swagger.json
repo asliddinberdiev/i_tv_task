@@ -1,0 +1,12 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API for I_TV_TASK APP",
+        "title": "I_TV_TASK API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8000",
+    "basePath": "/api/v1/",
+    "paths": {}
+}
