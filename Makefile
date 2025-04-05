@@ -11,6 +11,19 @@ export APP_ENVIRONMENT=dev
 
 POSTGRESQL_URL = 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}?sslmode=${POSTGRES_SSLMODE}'
 
+docker-build:
+	@docker build -t $(APP) .
+
+docker-run:
+	@docker run -d --name $(APP) -p 8000:8000 $(APP)
+
+docker-stop:
+	@docker stop $(APP)
+	@docker rm $(APP)
+
+docker-clean:
+	@docker rmi $(APP)
+
 migrate-up:
 	@migrate -database ${POSTGRESQL_URL} -path migrations/postgres up
 
