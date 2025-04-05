@@ -9,6 +9,7 @@ import (
 	"github.com/asliddinberdiev/i_tv_task/internal/config"
 	deliveryHttp "github.com/asliddinberdiev/i_tv_task/internal/delivery/http"
 	v1 "github.com/asliddinberdiev/i_tv_task/internal/delivery/http/v1"
+	"github.com/asliddinberdiev/i_tv_task/internal/modules/movie"
 	"github.com/asliddinberdiev/i_tv_task/internal/modules/user"
 	"github.com/asliddinberdiev/i_tv_task/internal/storage/postgres"
 	logger "github.com/asliddinberdiev/i_tv_task/pkgs/logger/zap"
@@ -40,12 +41,21 @@ func NewCreateApp() *App {
 
 		postgres.Module,
 		user.Module,
+		movie.Module,
 		deliveryHttp.Module,
 		v1.Module,
 
-		fx.Invoke(func(lc fx.Lifecycle, handler *deliveryHttp.Handler, cfg *config.Config, log logger.Logger) {
+		fx.Invoke(func(lc fx.Lifecycle, handler *deliveryHttp.Handler, cfg *config.Config, log logger.Logger, psql postgres.PostgresDB) {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
+					if err := psql.AutoMigrate(
+						&user.User{},
+						&movie.Movie{},
+					); err != nil {
+						log.Error("failed to auto migrate", logger.Error(err))
+						return err
+					}
+
 					server := &http.Server{
 						Addr:         cfg.GetAppAddr(),
 						Handler:      handler.Router,

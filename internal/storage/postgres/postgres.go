@@ -17,6 +17,7 @@ type PostgresDB interface {
 	DB() *gorm.DB
 	Close() error
 	WithTransaction(ctx context.Context, fn func(tx *gorm.DB) error) error
+	AutoMigrate(models ...interface{}) error
 }
 
 type postgresDB struct {
@@ -69,4 +70,8 @@ func (p *postgresDB) WithTransaction(ctx context.Context, fn func(tx *gorm.DB) e
 	return p.db.Transaction(func(tx *gorm.DB) error {
 		return fn(tx)
 	})
+}
+
+func (p *postgresDB) AutoMigrate(models ...interface{}) error {
+	return p.db.AutoMigrate(models...)
 }

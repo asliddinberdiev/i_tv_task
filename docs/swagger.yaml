@@ -1,23 +1,358 @@
 definitions:
-  user.UserID:
+  common.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  common.ResponseError:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  common.ResponseID:
     properties:
       id:
+        type: integer
+      message:
         type: string
+      status:
+        type: integer
+    type: object
+  common.ResponseWithList:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+      total:
+        type: integer
+    type: object
+  movie.MovieCreateInput:
+    properties:
+      director:
+        minLength: 2
+        type: string
+      genre:
+        minLength: 2
+        type: string
+      rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      title:
+        minLength: 2
+        type: string
+      year:
+        minimum: 1800
+        type: integer
+    required:
+    - director
+    - genre
+    - rating
+    - title
+    - year
+    type: object
+  movie.MovieUpdateInput:
+    properties:
+      director:
+        minLength: 2
+        type: string
+      genre:
+        minLength: 2
+        type: string
+      rating:
+        maximum: 10
+        minimum: 0
+        type: number
+      title:
+        minLength: 2
+        type: string
+      year:
+        minimum: 1800
+        type: integer
+    required:
+    - director
+    - genre
+    - rating
+    - title
+    - year
+    type: object
+  user.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user.RegisterInput:
+    properties:
+      email:
+        type: string
+      first_name:
+        minLength: 2
+        type: string
+      last_name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    type: object
+  user.TokenResponse:
+    properties:
+      access_token:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      refresh_token:
+        type: string
+      status:
+        type: integer
     type: object
 info:
   contact: {}
 paths:
-  /user/{id}:
+  /api/v1/movies:
     get:
       consumes:
       - application/json
-      description: Get user id
+      description: Get all movies
+      parameters:
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Search
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.UserID'
-      summary: Get user id
+            $ref: '#/definitions/common.ResponseWithList'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Get all movies
+      tags:
+      - movies
+    post:
+      consumes:
+      - application/json
+      description: Create a new movie
+      parameters:
+      - description: Movie
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/movie.MovieCreateInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/common.ResponseID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Create a new movie
+      tags:
+      - movies
+  /api/v1/movies/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a movie by ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.ResponseID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Delete a movie by ID
+      tags:
+      - movies
+    get:
+      consumes:
+      - application/json
+      description: Get a movie by ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Get a movie by ID
+      tags:
+      - movies
+    put:
+      consumes:
+      - application/json
+      description: Update a movie by ID
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Movie
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/movie.MovieUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/common.ResponseID'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Update a movie by ID
+      tags:
+      - movies
+  /api/v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Login
+      tags:
+      - auth
+  /api/v1/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.ResponseError'
+      summary: Register
+      tags:
+      - auth
 swagger: "2.0"
