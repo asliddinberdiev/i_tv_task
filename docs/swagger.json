@@ -55,6 +55,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new movie",
                 "consumes": [
                     "application/json"
@@ -149,6 +154,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update a movie by ID",
                 "consumes": [
                     "application/json"
@@ -206,6 +216,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a movie by ID",
                 "consumes": [
                     "application/json"

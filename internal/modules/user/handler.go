@@ -30,6 +30,7 @@ func NewHandler(service Service, log logger.Logger, cfg *config.Config) Handler 
 	return &handler{s: service, log: log, cfg: cfg}
 }
 
+
 // @Summary Register
 // @Description Register
 // @Tags auth

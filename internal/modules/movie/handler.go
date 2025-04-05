@@ -36,6 +36,7 @@ func NewHandler(service Service) Handler {
 // @Success 201 {object} common.ResponseID
 // @Failure 400 {object} common.ResponseError
 // @Failure 500 {object} common.ResponseError
+// @Security ApiKeyAuth
 // @Router /api/v1/movies [post]
 func (h *handler) Create(c *gin.Context) {
 	var req MovieCreateInput
@@ -224,6 +225,7 @@ func (h *handler) GetAll(c *gin.Context) {
 // @Failure 400 {object} common.ResponseError
 // @Failure 404 {object} common.ResponseError
 // @Failure 500 {object} common.ResponseError
+// @Security ApiKeyAuth
 // @Router /api/v1/movies/{id} [put]
 func (h *handler) Update(c *gin.Context) {
 	id := c.Param("id")
@@ -318,6 +320,7 @@ func (h *handler) Update(c *gin.Context) {
 // @Failure 400 {object} common.ResponseError
 // @Failure 404 {object} common.ResponseError
 // @Failure 500 {object} common.ResponseError
+// @Security ApiKeyAuth
 // @Router /api/v1/movies/{id} [delete]
 func (h *handler) Delete(c *gin.Context) {
 	id := c.Param("id")

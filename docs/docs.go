@@ -66,6 +66,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create a new movie",
                 "consumes": [
                     "application/json"
@@ -160,6 +165,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update a movie by ID",
                 "consumes": [
                     "application/json"
@@ -217,6 +227,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete a movie by ID",
                 "consumes": [
                     "application/json"
