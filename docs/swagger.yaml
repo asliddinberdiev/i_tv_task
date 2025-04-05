@@ -1,9 +1,23 @@
-basePath: /api/v1/
-host: localhost:8000
+definitions:
+  user.UserID:
+    properties:
+      id:
+        type: string
+    type: object
 info:
   contact: {}
-  description: REST API for I_TV_TASK APP
-  title: I_TV_TASK API
-  version: v1
-paths: {}
+paths:
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.UserID'
+      summary: Get user id
 swagger: "2.0"

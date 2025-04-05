@@ -1,9 +1,21 @@
 app:
   app_name: i_tv_task
   log_level: debug
+  grace_period: 4s
+  debug: true
+  read_timeout: 10s
+  write_timeout: 10s
+  idle_timeout: 120s
 
 auth:
   access_ttl: 30m
   refresh_ttl: 2h
   otp_ttl: 2m
   code_length: 6
+  max_login_attempts: 5
+  lockout_duration: 15m
+
+postgres:
+  max_open_conns: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 5m

@@ -1,7 +1,7 @@
 package user
 
 type Service interface {
-	GetByID() error
+	GetByID(id string) (UserID, error)
 }
 
 type service struct {
@@ -12,6 +12,6 @@ func NewService(repository Repository) Service {
 	return &service{r: repository}
 }
 
-func (s *service) GetByID() error {
-	return s.r.GetByID()
+func (s *service) GetByID(id string) (UserID, error) {
+	return s.r.GetByID(id)
 }

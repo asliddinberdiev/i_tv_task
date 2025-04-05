@@ -1,12 +1,38 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "REST API for I_TV_TASK APP",
-        "title": "I_TV_TASK API",
-        "contact": {},
-        "version": "v1"
+        "contact": {}
     },
-    "host": "localhost:8000",
-    "basePath": "/api/v1/",
-    "paths": {}
+    "paths": {
+        "/user/{id}": {
+            "get": {
+                "description": "Get user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get user id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.UserID"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "user.UserID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }

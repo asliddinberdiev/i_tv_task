@@ -2,66 +2,87 @@ package app
 
 import (
 	"context"
-	"errors"
-	externalLog "log"
+	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
-	api "github.com/asliddinberdiev/i_tv_task/internal/api/http"
 	"github.com/asliddinberdiev/i_tv_task/internal/config"
-	"github.com/asliddinberdiev/i_tv_task/internal/modules"
-	"github.com/asliddinberdiev/i_tv_task/internal/server"
-	db "github.com/asliddinberdiev/i_tv_task/pkgs/db/postgres"
+	deliveryHttp "github.com/asliddinberdiev/i_tv_task/internal/delivery/http"
+	v1 "github.com/asliddinberdiev/i_tv_task/internal/delivery/http/v1"
+	"github.com/asliddinberdiev/i_tv_task/internal/modules/user"
+	"github.com/asliddinberdiev/i_tv_task/internal/storage/postgres"
 	logger "github.com/asliddinberdiev/i_tv_task/pkgs/logger/zap"
+	"go.uber.org/fx"
 )
 
-func Run(configPath string) {
-	cfg, err := config.Init(configPath)
+type App struct {
+	fxApp *fx.App
+	log   logger.Logger
+}
+
+func NewCreateApp() *App {
+	cfg, err := config.NewConfig()
 	if err != nil {
-		externalLog.Fatalf("failed to initialize configuration: %+v\n", err)
+		panic(fmt.Sprintf("failed to load config: %v", err))
 	}
 
 	log := logger.NewLogger(cfg.App.LogLevel, cfg.App.ServiceName)
 	defer logger.Cleanup(log)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	app := fx.New(
+		fx.Provide(func() *config.Config {
+			return cfg
+		}),
 
-	psqlConn, err := db.ConnectPg(cfg, ctx)
-	if err != nil {
-		log.Fatal("failed to connect to postgres", logger.Error(err))
-		return
+		fx.Provide(func() logger.Logger {
+			return log
+		}),
+
+		postgres.Module,
+		user.Module,
+		deliveryHttp.Module,
+		v1.Module,
+
+		fx.Invoke(func(lc fx.Lifecycle, handler *deliveryHttp.Handler, cfg *config.Config, log logger.Logger) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					server := &http.Server{
+						Addr:         cfg.GetAppAddr(),
+						Handler:      handler.Router,
+						ReadTimeout:  cfg.App.ReadTimeout,
+						WriteTimeout: cfg.App.WriteTimeout,
+						IdleTimeout:  cfg.App.IdleTimeout,
+					}
+
+					go func() {
+						if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+							log.Fatal("failed to start server", logger.Error(err))
+						}
+					}()
+
+					return nil
+				},
+				OnStop: func(ctx context.Context) error {
+					ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+					defer cancel()
+
+					<-ctx.Done()
+					return ctx.Err()
+				},
+			})
+		}),
+	)
+
+	return &App{
+		fxApp: app,
+		log:   log,
 	}
-	log.Info("postgres", logger.Any("DSN", cfg.GetPostgresDSN()))
+}
 
-	modules := modules.NewModules(cfg, log, psqlConn)
+func (a *App) Start() error {
+	return a.fxApp.Start(context.Background())
+}
 
-	handlers := api.NewHandler(log, cfg, modules)
-
-	srv := server.NewServer(cfg, handlers.Init())
-
-	go func() {
-		if err := srv.Run(); !errors.Is(err, http.ErrServerClosed) {
-			log.Fatal("failed to run server", logger.Error(err))
-		}
-	}()
-
-	log.Info("server", logger.Any("ADDR", cfg.GetAppAddr()))
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
-
-	<-quit
-
-	const timeout = 5 * time.Second
-
-	ctx, shutdown := context.WithTimeout(context.Background(), timeout)
-	defer shutdown()
-
-	if err := srv.Stop(ctx); err != nil {
-		log.Fatal("failed to stop server", logger.Error(err))
-	}
+func (a *App) Stop() error {
+	return a.fxApp.Stop(context.Background())
 }
